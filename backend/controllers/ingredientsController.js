@@ -5,6 +5,7 @@ const { ingredientSearchUrl, edamamAccountUser } = require('../config');
 async function getSingleRecipe(req, res) {
     try {
         const data = await fetchFromEdamam(ingredientSearchUrl, edamamAccountUser);
+        data.note = 'We won\'t be using this endpoint in the future. I\'m still working on /missing-ingredients. -- Max';
         res.json(data);
     } catch (err) {
         console.error(err);
