@@ -1,27 +1,16 @@
-// src/services/apiService.js
-
 const API_BASE_URL = 'http://localhost:5000/api';
 
-/**
- * Extracts the clean alphanumeric ID out of an Edamam URI string
- */
 const extractRecipeId = (uri) => {
   if (!uri) return '';
   const parts = uri.split('#recipe_');
   return parts.length > 1 ? parts[1] : '';
 };
 
-/**
- * Executes the entire end-to-end multi-controller search and budget mapping pipeline.
- */
 const fetchRecipesWithBudgets = async (pantryList) => {
   if (!pantryList || pantryList.length === 0) return [];
 
   const combinedQuery = pantryList.join(',');
 
-  // ==========================================
-  // CONTROLLER 1: Get Recipes (Max)
-  // ==========================================
   const recipeResponse = await fetch(`${API_BASE_URL}/recipes?q=${encodeURIComponent(combinedQuery)}`);
   if (!recipeResponse.ok) throw new Error('Failed to fetch recipes from server.');
   
@@ -39,9 +28,7 @@ const fetchRecipesWithBudgets = async (pantryList) => {
 
       if (recipeId) {
         try {
-          // ==========================================
-          // CONTROLLER 2: Filter Missing Items (Max)
-          // ==========================================
+
           const missingResponse = await fetch(
             `${API_BASE_URL}/missing-ingredients?recipe_id=${recipeId}&q=${encodeURIComponent(combinedQuery)}`
           );
@@ -59,9 +46,6 @@ const fetchRecipesWithBudgets = async (pantryList) => {
         missingIngredientsList = currentRecipe.ingredientLines || [];
       }
 
-      // ==========================================
-      // CONTROLLER 3: Calculate Budget (Ha)
-      // ==========================================
       if (missingIngredientsList.length > 0) {
         try {
           const priceResponse = await fetch(`${API_BASE_URL}/ingredients/price-estimate`, {
@@ -94,5 +78,4 @@ const fetchRecipesWithBudgets = async (pantryList) => {
   return fullyProcessedRecipes;
 };
 
-// CHANGED: Exporting using CommonJS style to keep your Webpack loader happy
 module.exports = { fetchRecipesWithBudgets };
