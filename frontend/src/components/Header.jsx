@@ -1,37 +1,48 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-// Header component
+// Header component used across all pages
 function Header() {
     return (
-
-        
         <header>
-            {/* webpage header */}
+
+            {/* Website Logo / Title */}
             <div>
                 <h1>BudgetBite</h1>
             </div>
 
-            {/* navigation links */}
+            {/* Main Navigation */}
             <nav>
                 <ul>
                     <li>
-                        <a href="#search">Find Recipes</a>
+                        <Link to="/">Home</Link>
                     </li>
+
                     <li>
-                        <a href="#saved">Saved Recipes</a>
+                        <Link to="/recipes">Recipes</Link>
+                    </li>
+
+                    <li>
+                        <Link to="/saved-recipes">Saved Recipes</Link>
+                    </li>
+
+                    <li>
+                        <Link to="/about">About</Link>
+                    </li>
+
+                    <li>
+                        <Link to="/profile">Profile</Link>
                     </li>
                 </ul>
             </nav>
 
-            {/* user will be able to login later */}
+            {/* Placeholder until authentication is implemented */}
             <div>
                 <span>Welcome, User</span>
             </div>
-
 
         </header>
     );
 }
 
-//allow other files to import Header
 export default Header;
