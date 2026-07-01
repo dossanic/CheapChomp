@@ -29,6 +29,8 @@ function Dashboard() {
 
   const styles = {
     container: { padding: '30px', fontFamily: 'sans-serif', backgroundColor: '#fdfdfd', minHeight: '100vh' },
+    // 👇 Centers everything cleanly up to a comfortable 1200px max layout width
+    contentWrapper: { maxWidth: '1200px', margin: '0 auto', width: '100%' },
     heading: { color: '#333', borderBottom: '2px solid #fff3ee', paddingBottom: '10px' },
     loadingText: { color: '#ff6b35', fontWeight: 'bold', fontSize: '1.1em' },
     errorText: { color: '#d9381e', fontWeight: 'bold' },
@@ -65,42 +67,46 @@ function Dashboard() {
 
   return (
     <section style={styles.container}>
-      <h2 style={styles.heading}>BudgetBite Pantry Dashboard</h2>
-      
-      <SearchBar 
-        pantryList={pantryList}
-        onAddIngredient={addIngredient}
-        onRemoveIngredient={removeIngredient}
-        onTriggerSearch={handlePantryRecipeSearch}
-      />
+      {/* 👇 Added centering layout node */}
+      <div style={styles.contentWrapper}>
+        <h2 style={styles.heading}>Dashboard</h2>
+        <p>Welcome to your BudgetBite Dashboard! Manage your pantry and discover recipes based on ingredients you have on hand.</p>
+        
+        <SearchBar 
+          pantryList={pantryList}
+          onAddIngredient={addIngredient}
+          onRemoveIngredient={removeIngredient}
+          onTriggerSearch={handlePantryRecipeSearch}
+        />
 
-      {loading && <p style={styles.loadingText}>🍊 Analyzing your ingredient gaps...</p>}
-      {error && <p style={styles.errorText}>Error: {error}</p>}
+        {loading && <p style={styles.loadingText}>🍊 Analyzing your ingredient gaps...</p>}
+        {error && <p style={styles.errorText}>Error: {error}</p>}
 
-      {!loading && recipes.length > 0 && (
-        <div style={styles.gridSection}>
-          <h3 style={styles.gridTitle}>Matching Recipes Found ({recipes.length})</h3>
-          
-          <div style={styles.grid}>
-            {recipes.map((recipe, index) => (
-              <div key={recipe.id || index} style={styles.card}>
-                {recipe.image && (
-                  <img src={recipe.image} alt={recipe.title} style={styles.image} />
-                )}
-                <h4 style={styles.recipeTitle}>{recipe.title || "Untitled Recipe"}</h4>
-                <p style={styles.recipeSource}>Source: <em>{recipe.source || "Unknown Source"}</em></p>
-                <a href={recipe.recipeUrl} target="_blank" rel="noopener noreferrer" style={styles.recipeLink}>
-                  View Full Recipe Instructions
-                </a>
-              </div>
-            ))}
+        {!loading && recipes.length > 0 && (
+          <div style={styles.gridSection}>
+            <h3 style={styles.gridTitle}>Matching Recipes Found ({recipes.length})</h3>
+            
+            <div style={styles.grid}>
+              {recipes.map((recipe, index) => (
+                <div key={recipe.id || index} style={styles.card}>
+                  {recipe.image && (
+                    <img src={recipe.image} alt={recipe.title} style={styles.image} />
+                  )}
+                  <h4 style={styles.recipeTitle}>{recipe.title || "Untitled Recipe"}</h4>
+                  <p style={styles.recipeSource}>Source: <em>{recipe.source || "Unknown Source"}</em></p>
+                  <a href={recipe.recipeUrl} target="_blank" rel="noopener noreferrer" style={styles.recipeLink}>
+                    View Full Recipe Instructions
+                  </a>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!loading && recipes.length === 0 && pantryList.length > 0 && !error && (
-        <p style={styles.placeholder}>Click "Find Recipes Matching My Pantry" to view available options.</p>
-      )}
+        {!loading && recipes.length === 0 && pantryList.length > 0 && !error && (
+          <p style={styles.placeholder}>Click "Find Recipes Matching My Pantry" to view available options.</p>
+        )}
+      </div>
     </section>
   );
 }

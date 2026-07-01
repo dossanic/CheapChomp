@@ -1,5 +1,8 @@
+const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+require('dotenv').config();
 
 module.exports = {
   entry: './src/main.jsx',
@@ -12,6 +15,7 @@ module.exports = {
     extensions: ['.js', '.jsx'],
   },
   module: {
+    exprContextCritical: false,
     rules: [
       {
         test: /\.(js|jsx)$/,
@@ -23,6 +27,10 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
+      'process.env.SUPABASE_ANON_KEY': JSON.stringify(process.env.SUPABASE_ANON_KEY),
     }),
   ],
   devServer: {
