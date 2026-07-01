@@ -8,7 +8,6 @@ function RecipeBrowser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Automatically trigger a "Get All" baseline when the page first loads
   useEffect(() => {
     handleGetAll();
   }, []);
@@ -24,7 +23,6 @@ function RecipeBrowser() {
     }
   };
 
-  // 1. Core Search Function (With Alphabetical Sorting)
   const executeSearch = async (query) => {
     setLoading(true);
     setError(null);
@@ -33,7 +31,6 @@ function RecipeBrowser() {
     try {
       const data = await fetchRecipesWithBudgets([query]);
       
-      // ALPHABETICAL SORT: Sort rows from A to Z based on recipe title
       const alphabetized = (data || []).sort((a, b) => {
         const titleA = (a.title || '').toLowerCase();
         const titleB = (b.title || '').toLowerCase();
@@ -49,14 +46,15 @@ function RecipeBrowser() {
     }
   };
 
-  // 2. "Get All" Handler: Feeds a broad query to simulate an unrestricted browse feed
   const handleGetAll = () => {
-    setSearchQuery(''); // Clear search input state text
-    executeSearch('recipes'); // 'recipes' is a great keyword catch-all for Edamam
+    setSearchQuery('');
+    executeSearch('recipes');
   };
 
   const styles = {
     container: { padding: '30px', fontFamily: 'sans-serif', backgroundColor: '#fdfdfd', minHeight: '100vh' },
+    // 👇 Centers everything cleanly up to a comfortable 1200px max layout width
+    contentWrapper: { maxWidth: '1200px', margin: '0 auto', width: '100%' },
     heading: { color: '#333', borderBottom: '2px solid #fff3ee', paddingBottom: '10px', marginBottom: '20px' },
     actionsRow: { display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '30px', alignItems: 'center' },
     searchForm: { display: 'flex', gap: '10px', flexGrow: 1, maxWidth: '500px' },
@@ -122,47 +120,47 @@ function RecipeBrowser() {
 
   return (
     <section style={styles.container}>
-      <h2 style={styles.heading}>Explore Recipes</h2>
+      {/* 👇 Added centering layout node */}
+      <div style={styles.contentWrapper}>
+        <h2 style={styles.heading}>Explore Recipes</h2>
 
-      <div style={styles.actionsRow}>
-        {/* Keyword Search */}
-        <form onSubmit={handleFormSubmit} style={styles.searchForm}>
-          <input
-            type="text"
-            placeholder="Search for recipes (e.g., lasagna, tacos)..."
-            value={searchQuery}
-            onChange={handleInputChange}
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>Search</button>
-        </form>
+        <div style={styles.actionsRow}>
+          <form onSubmit={handleFormSubmit} style={styles.searchForm}>
+            <input
+              type="text"
+              placeholder="Search for recipes (e.g., lasagna, tacos)..."
+              value={searchQuery}
+              onChange={handleInputChange}
+              style={styles.input}
+            />
+            <button type="submit" style={styles.button}>Search</button>
+          </form>
 
-        {/* The new "Get All" Button */}
-        <button onClick={handleGetAll} style={styles.getAllButton}>
-          Show All (A-Z)
-        </button>
-      </div>
-
-      {loading && <p style={styles.loadingText}>🍊 Loading recipes...</p>}
-      {error && <p style={styles.errorText}>{error}</p>}
-
-      {/* Grid Display */}
-      {!loading && recipes.length > 0 && (
-        <div style={styles.grid}>
-          {recipes.map((recipe, index) => (
-            <div key={recipe.id || index} style={styles.card}>
-              {recipe.image && (
-                <img src={recipe.image} alt={recipe.title} style={styles.image} />
-              )}
-              <h4 style={styles.title}>{recipe.title || "Untitled Recipe"}</h4>
-              <p style={styles.source}>Source: <em>{recipe.source || "Unknown Source"}</em></p>
-              <a href={recipe.recipeUrl} target="_blank" rel="noopener noreferrer" style={styles.link}>
-                View Full Recipe Instructions
-              </a>
-            </div>
-          ))}
+          <button onClick={handleGetAll} style={styles.getAllButton}>
+            Show All (A-Z)
+          </button>
         </div>
-      )}
+
+        {loading && <p style={styles.loadingText}>🍊 Loading recipes...</p>}
+        {error && <p style={styles.errorText}>{error}</p>}
+
+        {!loading && recipes.length > 0 && (
+          <div style={styles.grid}>
+            {recipes.map((recipe, index) => (
+              <div key={recipe.id || index} style={styles.card}>
+                {recipe.image && (
+                  <img src={recipe.image} alt={recipe.title} style={styles.image} />
+                )}
+                <h4 style={styles.title}>{recipe.title || "Untitled Recipe"}</h4>
+                <p style={styles.source}>Source: <em>{recipe.source || "Unknown Source"}</em></p>
+                <a href={recipe.recipeUrl} target="_blank" rel="noopener noreferrer" style={styles.link}>
+                  View Full Recipe Instructions
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
