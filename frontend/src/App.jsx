@@ -85,7 +85,7 @@ function App() {
                         Your Saved Collections
                       </h2>
                       <p style={{ color: '#777', fontStyle: 'italic', marginTop: '20px' }}>
-                        Saved recipes dashboard database persistence layer coming soon in Phase 5!
+                        Coming soon!
                       </p>
                     </div>
                   )}

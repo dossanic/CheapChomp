@@ -79,7 +79,7 @@ function Dashboard() {
           onTriggerSearch={handlePantryRecipeSearch}
         />
 
-        {loading && <p style={styles.loadingText}>🍊 Analyzing your ingredient gaps...</p>}
+        {loading && <p style={styles.loadingText}>🍊 Loading Recipes...</p>}
         {error && <p style={styles.errorText}>Error: {error}</p>}
 
         {!loading && recipes.length > 0 && (

@@ -125,7 +125,7 @@ function Login() {
   return (
     <div style={styles.wrapper}>
       <main style={styles.card}>
-        <h2 style={styles.title}>Welcome Back</h2>
+        <h2 style={styles.title}>Welcome</h2>
         <p style={styles.subtitle}>Log in to access your BudgetBite kitchen</p>
 
         {/* Display UI Error banner if registration/auth fails */}
