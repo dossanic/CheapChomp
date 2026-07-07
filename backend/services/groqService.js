@@ -1,5 +1,5 @@
 // Reference: https://console.groq.com/docs/text-chat
-async function estimatePrice(ingredients, location) {
+async function estimatePrice(ingredients, location = "Toronto, Ontario") {
   // Make a POST request to the Groq API for chat completions
   const response = await fetch(
     "https://api.groq.com/openai/v1/chat/completions", // Groq API endpoint for chat completions
