@@ -1,42 +1,46 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// view imports
 import Header from './components/Header';
 import Dashboard from './views/Dashboard';
 import RecipeBrowser from './views/RecipeBrowser';
 import Login from './views/Login';
 import Signup from './views/Signup';
 
+// Supabase client import
 import { supabase } from './services/supabaseClient';
 
+// Main App component
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  // State can track: 'dashboard', 'browser', or 'saved'
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [user, setUser] = useState(null); // State to track the authenticated user
+  const [loading, setLoading] = useState(true); // State to track the loading status of the authentication check
+  const [currentView, setCurrentView] = useState('dashboard');  // State to track the current view in the app (dashboard, browser, saved)
   
+  // Effect hook to check for an authenticated user on component mount
   useEffect(() => {
-    async function getUser() {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-      setLoading(false);
+    async function getUser() {  // Async function to fetch the current authenticated user from Supabase
+      const { data } = await supabase.auth.getUser(); // Fetch the current user from Supabase Auth
+      setUser(data.user);   // Update the user state with the fetched user data
+      setLoading(false);  // Set loading to false after the user data is fetched
     }
 
-    getUser();
+    getUser();  // Call the async function to fetch the user data
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
-        setLoading(false);
+    // Set up a listener for authentication state changes (login/logout)
+    const { data: listener } = supabase.auth.onAuthStateChange(   // Listen for auth state changes
+      (_event, session) => {  // Callback function triggered on auth state change
+        setUser(session?.user || null); // Update the user state based on the new session data
+        setLoading(false);  // Set loading to false after the auth state change is handled
       }
     );
 
     return () => {
-      listener.subscription.unsubscribe();
+      listener.subscription.unsubscribe();  // Clean up the listener on component unmount to prevent memory leaks
     };
   }, []);
 
+  // Display a loading message while checking for an authenticated user
   if (loading) {
     return (
       <div style={{ padding: '50px', fontFamily: 'sans-serif', textAlign: 'center', color: '#ff6b35' }}>
@@ -46,23 +50,17 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* ======================================================================= */}
-        {/* PUBLIC AUTH ROUTES                                                      */}
-        {/* ======================================================================= */}
-        <Route 
+    <BrowserRouter> // Wrap the app in BrowserRouter to enable routing
+      <Routes>  // Define the routes for the application
+        <Route // Public Routes for Login and Signup
           path="/login" 
-          element={!user ? <Login /> : <Navigate to="/" replace />} 
+          element={!user ? <Login /> : <Navigate to="/" replace />} // If the user is not authenticated, render the Login component; otherwise, redirect to the root path
         />
         <Route 
-          path="/signup" 
-          element={!user ? <Signup /> : <Navigate to="/" replace />} 
+          path="/signup" // Public route for the signup page
+          element={!user ? <Signup /> : <Navigate to="/" replace />} // If the user is not authenticated, render the Signup component; otherwise, redirect to the root path
         />
 
-        {/* ======================================================================= */}
-        {/* PROTECTED APP VIEWPORT (Combines State View Tracking & Auth Guard)      */}
-        {/* ======================================================================= */}
         <Route
           path="/"
           element={

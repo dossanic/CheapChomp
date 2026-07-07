@@ -1,8 +1,8 @@
-// src/components/Header.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Used to redirect to login on logout
-const { supabase } = require('../services/supabaseClient');
+import { useNavigate } from 'react-router-dom'; // Used to programmatically redirect users post-authentication events
+const { supabase } = require('../services/supabaseClient'); // Supabase client wrapper containing initialized instance configs
 
+// setView
 function Header({ setView, user }) {
   const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ function Header({ setView, user }) {
       width: '100%',
       boxSizing: 'border-box'
     },
-    // 👇 Centers header items and matches the 1200px max width of your dashboard
+    // Centers header items and matches the 1200px max width of your dashboard
     contentWrapper: {
       maxWidth: '1200px',
       margin: '0 auto',
@@ -71,7 +71,7 @@ function Header({ setView, user }) {
 
   return (
     <header style={styles.header}>
-      {/* 👇 Wrapping layout container to pull everything inward */}
+      {/* Wrapping layout container to pull everything inward */}
       <div style={styles.contentWrapper}>
         {/* Brand Title / Clicking returns home */}
         <div>
@@ -83,7 +83,7 @@ function Header({ setView, user }) {
         {/* Primary Application Navigation (State-Based View Routing) */}
         <nav>
           <ul style={styles.navList}>
-            {/* 1. Dashboard / Homepage */}
+            {/* Dashboard / Homepage */}
             <li>
               <button onClick={() => setView('dashboard')} style={styles.navLink}>
                 Home
