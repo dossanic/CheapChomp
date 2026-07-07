@@ -1,4 +1,4 @@
-﻿# BudgetBite
+﻿# CheapChomp
 ## Frontend
 ### Install dependencies
 Run `npm install`
