@@ -50,8 +50,8 @@ function App() {
   }
 
   return (
-    <BrowserRouter> // Wrap the app in BrowserRouter to enable routing
-      <Routes>  // Define the routes for the application
+    <BrowserRouter> {/* Wrap the app in BrowserRouter to enable routing */}
+      <Routes>  {/* Define the routes for the application */}
         <Route // Public Routes for Login and Signup
           path="/login" 
           element={!user ? <Login /> : <Navigate to="/" replace />} // If the user is not authenticated, render the Login component; otherwise, redirect to the root path
