@@ -79,6 +79,10 @@ function SearchBar({ onAddIngredient, pantryList, onRemoveIngredient, onTriggerS
       fontSize: '1em',
       cursor: 'pointer',
       boxShadow: theme.shadow.button
+    },
+    searchBtnDisabled: {
+      opacity: 0.5,
+      cursor: 'not-allowed'
     }
   };
 
@@ -116,11 +120,17 @@ function SearchBar({ onAddIngredient, pantryList, onRemoveIngredient, onTriggerS
         )}
       </div>
 
-      {pantryList.length > 0 && (
-        <button onClick={onTriggerSearch} style={styles.searchBtn} className="bb-btn-primary">
-          Find Recipes Matching My Pantry
-        </button>
-      )}
+      <button
+        onClick={onTriggerSearch}
+        disabled={pantryList.length === 0}
+        style={{
+          ...styles.searchBtn,
+          ...(pantryList.length === 0 ? styles.searchBtnDisabled : {})
+        }}
+        className="bb-btn-primary"
+      >
+        Find Recipes Matching My Pantry
+      </button>
     </div>
   );
 }

@@ -18,23 +18,26 @@ button {
 }
 
 /* Inline styles can't express :hover/:focus, so interactive states live here.
-   Hex values are duplicated from src/theme.js on purpose (CSS can't import JS) — keep them in sync. */
+   Hex values are duplicated from src/theme.js on purpose (CSS can't import JS) — keep them in sync.
+   !important is required on color/background/border/shadow overrides below: every component sets
+   its base color via inline `style`, and a plain (non-!important) stylesheet rule can never beat an
+   inline declaration for the same property, :hover or not. Without it these rules are silently no-ops. */
 
 .bb-card {
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 .bb-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1) !important;
 }
 
 .bb-btn-primary {
   transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.08s ease;
 }
-.bb-btn-primary:hover {
-  background-color: #eb5a26;
+.bb-btn-primary:hover:not(:disabled) {
+  background-color: #eb5a26 !important;
 }
-.bb-btn-primary:active {
+.bb-btn-primary:active:not(:disabled) {
   transform: translateY(1px);
 }
 
@@ -42,14 +45,14 @@ button {
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 .bb-btn-outline:hover {
-  background-color: #ffe4d6;
+  background-color: #ffe4d6 !important;
 }
 
 .bb-link {
   transition: background-color 0.18s ease;
 }
 .bb-link:hover {
-  background-color: #eb5a26;
+  background-color: #eb5a26 !important;
 }
 
 .bb-text-link {
@@ -57,15 +60,15 @@ button {
 }
 .bb-text-link:hover {
   opacity: 0.75;
-  text-decoration: underline;
+  text-decoration: underline !important;
 }
 
 .bb-input {
   transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 .bb-input:focus {
-  border-color: #ff6b35;
-  background-color: #ffffff;
+  border-color: #ff6b35 !important;
+  background-color: #ffffff !important;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.14);
 }
 
@@ -73,21 +76,21 @@ button {
   transition: color 0.18s ease;
 }
 .bb-nav-link:hover {
-  color: #ff6b35;
+  color: #ff6b35 !important;
 }
 
 .bb-pagination-btn {
   transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 .bb-pagination-btn:hover:not(:disabled) {
-  background-color: #fff3ee;
+  background-color: #fff3ee !important;
 }
 
 .bb-remove-btn {
   transition: color 0.18s ease, transform 0.12s ease;
 }
 .bb-remove-btn:hover {
-  color: #d9381e;
+  color: #d9381e !important;
   transform: scale(1.15);
 }
 
