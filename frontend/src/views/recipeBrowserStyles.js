@@ -26,17 +26,6 @@ const recipeBrowserStyles = {
     whiteSpace: 'nowrap',
     boxShadow: theme.shadow.button
   },
-  getAllButton: {
-    padding: '12px 24px',
-    background: theme.color.primaryLight,
-    color: theme.color.primary,
-    border: `2px solid ${theme.color.primary}`,
-    borderRadius: theme.radius.sm,
-    fontWeight: 'bold',
-    fontSize: '1em',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap'
-  },
   loadingText: { color: theme.color.primary, fontWeight: 'bold', fontSize: '1.1em' },
   errorText: { color: theme.color.danger, fontWeight: 'bold' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' },
