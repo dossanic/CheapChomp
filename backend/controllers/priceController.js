@@ -16,7 +16,9 @@ function isGroqRateLimitError(error) {
 
 // Function to get price estimates for a list of ingredients
 async function getPriceEstimate(req, res) {
-  const { ingredients, location = "Toronto, Ontario" } = req.body; // Require an array of ingredient names and an optional location from the request body
+  // Require an array of ingredient names and an optional location from the request body
+  // Location defaults to "Toronto, Ontario" if not provided by the user
+  const { ingredients, location = "Toronto, Ontario" } = req.body;
 
   if (!ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
     return res.status(400).json({
@@ -26,21 +28,28 @@ async function getPriceEstimate(req, res) {
 
   // Loop through all ingredients name, delete white space and convert to lowercase to avoid case sensitivity
   // map function will return a new array with the normalized ingredient names, we will use this array to query the database
-  const normalizedIngredients = ingredients.map((name) => name.trim().toLowerCase());
+  const normalizedIngredients = ingredients.map((name) =>
+    name.trim().toLowerCase(),
+  );
 
   let data = [];
   let supabaseError = null;
 
   try {
-    const response = await supabase // Query supabase database for the ingredients that match the normalized ingredient names
+    // Query supabase database for the ingredients that match the normalized ingredient names
+    const response = await supabase
       .from("ingredient_prices")
-      .select("name, price_min, price_max")
+      .select("name, price_min, price_max, last_updated")
       .in("name", normalizedIngredients);
 
-    data = response.data || []; // If no data is returned, default to an empty array
-    supabaseError = response.error; // If there is an error, store it in supabaseError to handle it later
+    data = response.data || [];
+    supabaseError = response.error;
   } catch (err) {
     supabaseError = err;
+  }
+
+  if (supabaseError) {
+    return res.status(500).json({ error: supabaseError.message });
   }
 
   // Initalize variables and array to store results
@@ -49,37 +58,38 @@ async function getPriceEstimate(req, res) {
   const found = [];
   const notFound = [];
 
-  if (supabaseError) {
-    for (const ingredient of normalizedIngredients) {
-      notFound.push({
-        ingredient,
-        message: "Price lookup unavailable right now",
-      });
-    }
-  } else {
-    for (const ingredient of normalizedIngredients) {
-      const match = data.find((row) => row.name === ingredient);
+  // Loop through the normalized ingredients and check if they exist in the database response
+  for (const ingredient of normalizedIngredients) {
+    // find() returns the first matching row or undefined if not found
+    const match = data.find((row) => row.name === ingredient);
 
-    // If found the ingredient add the price to the total variables
-    // Supabase will return price as string so we need to parse it to float for calculation
     if (match) {
-      totalMin += parseFloat(match.price_min);
-      totalMax += parseFloat(match.price_max);
+      // calculate how many days since last updated
+      // If last_updated is null, set daysSinceUpdate to 8 to refresh the data
+      let daysSinceUpdate;
+      if (match.last_updated) {
+        daysSinceUpdate =
+          (new Date() - new Date(match.last_updated)) / (1000 * 60 * 60 * 24);
+      } else {
+        daysSinceUpdate = 8;
+      }
 
-      // Push the ingredient and price to the found array
-      found.push({
-        ingredient: match.name,
-        min: parseFloat(match.price_min),
-        max: parseFloat(match.price_max),
-      });
-    }
-
-    // If not found push the ingredient to the notFound array
-    else {
-      notFound.push({
-        ingredient,
-        message: "Price not available in our database",
-      });
+      if (daysSinceUpdate > 7) {
+        // Price is expired, push to notFound so Groq will re-estimate
+        notFound.push({ ingredient });
+      } else {
+        // Price is valid, add to total and push to found array
+        totalMin += parseFloat(match.price_min);
+        totalMax += parseFloat(match.price_max);
+        found.push({
+          ingredient: match.name,
+          min: parseFloat(match.price_min),
+          max: parseFloat(match.price_max),
+        });
+      }
+    } else {
+      // Ingredient not found in database, push to notFound for Groq to estimate
+      notFound.push({ ingredient });
     }
   }
 
@@ -93,25 +103,43 @@ async function getPriceEstimate(req, res) {
       }
     } else {
       try {
-        const notFoundName = notFound.map((item) => item.ingredient);
-        const priceEstimates = await estimatePrice(notFoundName, location);
+        const notFoundName = notFound.map((item) => item.ingredient); // Extract ingredient names from notFound array to pass to Groq service
+        const priceEstimates = await estimatePrice(notFoundName, location); // Call the Groq AI service and send the name and location to get the estimate
 
         for (const estimate of priceEstimates || []) {
           totalMin += estimate.min;
           totalMax += estimate.max;
 
+          // Push the ingredient and price to the found array
           found.push({
             ingredient: estimate.ingredient,
             min: estimate.min,
             max: estimate.max,
           });
+
+          // Upsert the new price estimate into the database
+          // onConflict: the "name" will be update if it already exists in the database, if not then insert a new row, avoid duplicate
+          const { error: upsertError } = await supabase
+            .from("ingredient_prices")
+            .upsert(
+              {
+                name: estimate.ingredient.toLowerCase(),
+                price_min: estimate.min,
+                price_max: estimate.max,
+                unit_type: estimate.unit_type,
+                base_unit: estimate.base_unit,
+                last_updated: new Date(),
+              },
+              { onConflict: "name" },
+            );
         }
 
         notFound.length = 0;
         groqCircuit.consecutiveFailures = 0;
       } catch (err) {
         groqCircuit.consecutiveFailures += 1;
-        const shouldDisable = isGroqRateLimitError(err) || groqCircuit.consecutiveFailures >= 3;
+        const shouldDisable =
+          isGroqRateLimitError(err) || groqCircuit.consecutiveFailures >= 3;
 
         if (shouldDisable) {
           groqCircuit.disabledUntil = Date.now() + GROQ_COOLDOWN_MS;
@@ -127,6 +155,7 @@ async function getPriceEstimate(req, res) {
     }
   }
 
+  // Return summary and breakdown to frontend
   return res.json({
     summary: {
       // Round to 2 decimal and parse the number to float
@@ -138,7 +167,6 @@ async function getPriceEstimate(req, res) {
     breakdown: found, // Breakdown the found ingredients with their price
     notFound,
   });
-}
 }
 
 module.exports = { getPriceEstimate };

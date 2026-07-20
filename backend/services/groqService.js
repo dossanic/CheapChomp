@@ -2,22 +2,25 @@
 async function estimatePrice(ingredients, location = "Toronto, Ontario") {
   // Make a POST request to the Groq API for chat completions
   const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions", // Groq API endpoint for chat completions
+    "https://api.groq.com/openai/v1/chat/completions",
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`, // Use your Groq API key from env
-        "Content-Type": "application/json", // Specify the content type as JSON
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant", // AI model to use for the request
+        model: "llama-3.1-8b-instant",
         messages: [
           {
             role: "user",
-            // Give a specific prompt to the AI, asking for grocery price estimates in {location}, including the ingredients list in the request
-            // The prompt also ask to return a JSON array with the ingredient name, minimum price and maximum price
-            content: `Estimate grocery prices in ${location}, Canada as of 2026 for these ingredients: ${ingredients.join(", ")}. Consider average prices from major grocery stores like Loblaws, No Frills, and Metro. 
-            Return JSON array only, no extra text, no markdown: [{"ingredient": "name", "min": 0.00, "max": 0.00}]`,
+            // Prompt Groq to estimate grocery prices and return structured JSON
+            content: `Estimate grocery prices in ${location}, Canada as of 2026 for these ingredients: ${ingredients.join(", ")}. Consider average prices from major grocery stores like Loblaws, No Frills, and Metro.
+            For each ingredient, return ONLY ONE price estimate representing the average price for a standard grocery store purchase size. Do not return multiple entries for the same ingredient.
+            For unit_type, only use simple categories: weight, volume, count, package, or spice.
+            For base_unit, use standard units only: kg, g, lb, oz, L, ml, each, bunch, can, bottle, bag, box, jar, tbsp, tsp.
+            Return the ingredient name exactly as provided in the input, do not add extra words or descriptions.
+            Return JSON array only, no extra text, no markdown: [{"ingredient": "name", "min": 0.00, "max": 0.00, "unit_type": "string", "base_unit": "string"}]`,
           },
         ],
       }),
@@ -31,7 +34,6 @@ async function estimatePrice(ingredients, location = "Toronto, Ontario") {
     );
   }
   const data = await response.json();
-  console.log("Groq response:", JSON.stringify(data, null, 2)); // Log the entire response for debugging
 
   // Extract the content from the response
   const content = data.choices[0].message.content;
