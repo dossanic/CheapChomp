@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 // view imports
 import Header from './components/Header';
 import Footer from './components/Footer';
+import BackgroundPeaches from './components/BackgroundPeaches';
 import Dashboard from './views/Dashboard';
 import RecipeBrowser from './views/RecipeBrowser';
 import RecipeDetails from './views/RecipeDetails';
@@ -19,9 +20,12 @@ function AppShell({ user }) {
   return (
     <div>
       <Header user={user} />
-      <main>
-        <Outlet />
-      </main>
+      <div style={{ position: 'relative', zIndex: 0 }}>
+        <BackgroundPeaches />
+        <main>
+          <Outlet />
+        </main>
+      </div>
       <Footer />
     </div>
   );
@@ -78,10 +82,10 @@ function App() {
     <BrowserRouter> {/* Wrap the app in BrowserRouter to enable routing */}
       <Routes>  {/* Define the routes for the application */}
         <Route // Public Routes for Login and Signup
-          path="/login" 
+          path="/login"
           element={!user ? <Login /> : <Navigate to="/" replace />} // If the user is not authenticated, render the Login component; otherwise, redirect to the root path
         />
-        <Route 
+        <Route
           path="/signup" // Public route for the signup page
           element={!user ? <Signup /> : <Navigate to="/" replace />} // If the user is not authenticated, render the Signup component; otherwise, redirect to the root path
         />
