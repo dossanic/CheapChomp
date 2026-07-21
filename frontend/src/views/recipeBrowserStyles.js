@@ -1,7 +1,7 @@
 const { theme } = require('../theme');
 
 const recipeBrowserStyles = {
-  container: { padding: '30px', backgroundColor: theme.color.background, minHeight: '100vh' },
+  container: { padding: '30px', minHeight: '100vh' },
   contentWrapper: { maxWidth: '1200px', margin: '0 auto', width: '100%' },
   heading: { color: theme.color.text, borderBottom: `2px solid ${theme.color.border}`, paddingBottom: '10px', marginBottom: '20px' },
   actionsRow: { display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '30px', alignItems: 'center' },

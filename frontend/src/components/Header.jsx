@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Used to programmatically redirect users post-authentication events
+import logo from '../assets/CheapChompLogo.png';
 const { supabase } = require('../services/supabaseClient'); // Supabase client wrapper containing initialized instance configs
 const { theme } = require('../theme');
 
@@ -28,11 +29,9 @@ function Header({ user }) {
       alignItems: 'center',
       width: '100%'
     },
-    logo: {
-      color: theme.color.primary,
-      margin: 0,
-      fontSize: '1.8em',
-      fontWeight: 'bold',
+    logoImg: {
+      height: '42px',
+      width: 'auto',
       cursor: 'pointer',
       userSelect: 'none'
     },
@@ -71,9 +70,7 @@ function Header({ user }) {
       <div style={styles.contentWrapper}>
         {/* Brand Title / Clicking returns home */}
         <div>
-          <h1 style={styles.logo} onClick={() => navigate('/')}>
-            CheapChomp
-          </h1>
+          <img src={logo} alt="CheapChomp" style={styles.logoImg} onClick={() => navigate('/')} />
         </div>
 
         {/* Primary Application Navigation */}

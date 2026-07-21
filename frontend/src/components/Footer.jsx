@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/CheapChompLogo.png';
 const { theme } = require('../theme');
 
 function Footer() {
@@ -23,7 +24,7 @@ function Footer() {
       gap: '30px'
     },
     brandCol: { maxWidth: '320px' },
-    logo: { color: theme.color.primary, margin: 0, fontSize: '1.5em', fontWeight: 'bold' },
+    logoImg: { height: '32px', width: 'auto', display: 'block' },
     tagline: { color: theme.color.textMuted, marginTop: '8px', fontSize: '0.95em', lineHeight: '1.5' },
     linksCol: { display: 'flex', flexDirection: 'column', gap: '8px' },
     colTitle: { color: theme.color.text, fontWeight: '700', fontSize: '0.85em', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' },
@@ -56,7 +57,7 @@ function Footer() {
     <footer style={styles.footer}>
       <div style={styles.contentWrapper}>
         <div style={styles.brandCol}>
-          <h2 style={styles.logo}>CheapChomp</h2>
+          <img src={logo} alt="CheapChomp" style={styles.logoImg} />
           <p style={styles.tagline}>Find recipes that fit what's already in your pantry — and what's left in your budget.</p>
         </div>
 

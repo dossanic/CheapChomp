@@ -1,7 +1,7 @@
 const { theme } = require('../theme');
 
 const recipeDetailsStyles = {
-  container: { padding: '30px', backgroundColor: theme.color.background, minHeight: '100vh' },
+  container: { padding: '30px', minHeight: '100vh' },
   contentWrapper: { maxWidth: '800px', margin: '0 auto', width: '100%' },
   backButton: {
     background: 'none',
