@@ -100,6 +100,47 @@ const fetchRecipesWithBudgets = async (pantryList, options = {}) => {
   };
 };
 
+// Function to fetch a plain list of recipes (no per-recipe missing-ingredients/price calls) --
+// use this instead of fetchRecipesWithBudgets when the caller won't display cost info,
+// since that function fires two extra network calls (one of which can hit Groq) per recipe.
+const fetchRecipesList = async (query, options = {}) => {
+  const page = options.page || 1;
+  const pageSize = options.pageSize || 10;
+  const nextUrl = options.nextUrl ? encodeURIComponent(options.nextUrl) : '';
+  const sortMode = options.sortMode || 'random';
+  const requestPageSize = sortMode === 'az' ? 100 : pageSize; // Match fetchRecipesWithBudgets so A-Z accumulation still works
+
+  const recipeResponse = await fetch(`${API_BASE_URL}/recipes?q=${encodeURIComponent(query)}&page=${page}&pageSize=${requestPageSize}${nextUrl ? `&nextUrl=${nextUrl}` : ''}`);
+  if (!recipeResponse.ok) throw new Error('Failed to fetch recipes from server.');
+
+  const recipeData = await recipeResponse.json();
+  const extractedRecipes = recipeData.hits || [];
+
+  const recipes = extractedRecipes.map((hit) => {
+    const currentRecipe = hit.recipe;
+    const recipeId = extractRecipeId(currentRecipe.uri);
+
+    return {
+      id: recipeId || currentRecipe.uri,
+      title: currentRecipe.label,
+      image: currentRecipe.image,
+      source: currentRecipe.source,
+      recipeUrl: currentRecipe.url
+    };
+  });
+
+  return {
+    recipes,
+    pagination: {
+      page: recipeData.page || page,
+      pageSize: recipeData.pageSize || pageSize,
+      totalPages: recipeData.totalPages || 1,
+      totalHits: recipeData.totalHits || 0,
+      nextPageUrl: recipeData.nextPageUrl || null
+    }
+  };
+};
+
 // Function to fetch a random sample of recipes (e.g. for dashboard "recipe ideas")
 const fetchRandomRecipes = async (count = 3) => {
   const recipeResponse = await fetch(`${API_BASE_URL}/recipes?pageSize=20`); // Fetch a batch of generic recipes from the backend
@@ -175,4 +216,32 @@ const fetchRecipeDetails = async (recipeId) => {
   };
 };
 
-module.exports = { fetchRecipesWithBudgets, fetchRandomRecipes, fetchRecipeDetails };
+// Function to fetch a user's favorited recipes, or check whether one specific recipe is favorited
+const fetchFavorites = async (userId, recipeId = null) => {
+  const url = `${API_BASE_URL}/favorites?user_id=${encodeURIComponent(userId)}${recipeId ? `&recipe_id=${encodeURIComponent(recipeId)}` : ''}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch favorites.');
+  return response.json(); // { favorites: [...] } or { favorited: boolean }
+};
+
+// Function to favorite a recipe
+const addFavorite = async (userId, recipe) => {
+  const response = await fetch(`${API_BASE_URL}/favorites`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, recipe })
+  });
+  if (!response.ok) throw new Error('Failed to save favorite.');
+  return response.json();
+};
+
+// Function to unfavorite a recipe
+const removeFavorite = async (userId, recipeId) => {
+  const response = await fetch(`${API_BASE_URL}/favorites?user_id=${encodeURIComponent(userId)}&recipe_id=${encodeURIComponent(recipeId)}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) throw new Error('Failed to remove favorite.');
+  return response.json();
+};
+
+module.exports = { fetchRecipesWithBudgets, fetchRecipesList, fetchRandomRecipes, fetchRecipeDetails, fetchFavorites, addFavorite, removeFavorite };
